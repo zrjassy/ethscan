@@ -1,7 +1,7 @@
 <template>
   <div class="home" style="padding-top: 50px;">
     <h4 style="text-align:center; margin-top: 30px;">
-      Latest Block: {{blockNumber}}
+      Latest Block: <router-link v-bind:to="'/about/' + blockNumber">{{ blockNumber }}</router-link>
     </h4>
     <table class="pure-table" style="margin: auto" width='60%'>
       <tbody>
@@ -12,13 +12,15 @@
         <th>Timestamp</th>
       </tr>
       <tr v-for="i in blocks" :key="i">
-        <td>{{i.number}}</td>
-        <td>{{i.transactions.length}}</td>
-        <td>{{i.size}}</td>
-        <td>{{i.timestamp}}</td>
+        <td>
+          <router-link v-bind:to="'/about/' + i.number">{{ i.number }}</router-link></td>
+        <td>{{ i.transactions.length }}</td>
+        <td>{{ i.size }}</td>
+        <td>{{ i.timestamp }}</td>
       </tr>
       </tbody>
     </table>
+    <router-view/>
 <!--    <HelloWorld msg="Welcome to Your Vue.js App"/>-->
   </div>
 </template>
