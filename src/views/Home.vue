@@ -1,27 +1,76 @@
 <template>
-  <div class="home" style="padding-top: 50px;">
-    <h4 style="text-align:center; margin-top: 30px;">
-      Latest Block: <router-link v-bind:to="'/about/' + blockNumber">{{ blockNumber }}</router-link>
-    </h4>
-    <table class="pure-table" style="margin: auto" width='60%'>
-      <tbody>
-      <tr>
-        <th>Block #</th>
-        <th>Tx #</th>
-        <th>Size</th>
-        <th>Timestamp</th>
-      </tr>
-      <tr v-for="i in blocks" :key="i">
-        <td>
-          <router-link v-bind:to="'/about/' + i.number">{{ i.number }}</router-link></td>
-        <td>{{ i.transactions.length }}</td>
-        <td>{{ i.size }}</td>
-        <td>{{ i.timestamp }}</td>
-      </tr>
-      </tbody>
-    </table>
+  <div class="home" >
+    <div class="container">
+      <div class="home-head">
+        <!--blockChain Statistics-->
+        <div class="home-head-data margin-right-10">
+          <ul>
+            <li v-for="item in totalStatisticsList" :class="item.class" :key="item.label" class="lg-width">
+              <span class="home-head-data-label">{{item.label}}</span>
+              <span class="home-head-data-content"> {{item.value}}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="home-foot">
+        <!--Block list-->
+        <div class="home-foot-box margin-right-10">
+          <div class="home-foot-box-nav">
+            <div class="left">
+              <span class="line"></span>
+              <span class="text">区块</span>
+            </div>
+            <div class="right">
+              <span @click="goPage('block')" class="table-link" style="padding-right: 30px"> 更多 ></span>
+            </div>
+          </div>
+          <div class="home-foot-box-content">
+            <ul>
+              <li class="item" v-for="item in blocks" :key='item.number'>
+                <div class="left">
+                  <div  @click="goPage('block','blocknum',item.number)" class="table-link">区块 {{item.number}}</div>
+                  <div>{{item.timestamp}}</div>
+                </div>
+                <div class="right">
+                  <div>矿工
+                    <span class="block-number" >{{item.miner}}</span>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <!--transaction list-->
+        <div class="home-foot-box margin-left-10">
+          <div class="home-foot-box-nav">
+            <div class="left">
+              <span class="line"></span>
+              <span class="text">交易</span>
+            </div>
+<!--            <div class="right">-->
+<!--              <span @click="linkPage('transaction')" class="table-link" style="padding-right: 30px"> 更多 ></span>-->
+<!--            </div>-->
+          </div>
+          <div class="home-foot-box-content" >
+            <ul>
+              <li class="item" v-for="item in transactionsList[0]" :key='item.timestamp'>
+                <div class="left">
+                  <div class="transaction" >交易
+                    <span class="table-link" :title="item.hash">{{item.hash }}</span>
+                  </div>
+                </div>
+
+                <div class="right">
+                  <div>{{item.timestamp}}</div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
     <router-view/>
-<!--    <HelloWorld msg="Welcome to Your Vue.js App"/>-->
+    </div>
   </div>
 </template>
 
@@ -30,6 +79,10 @@
 // 局部注册组件
 // import HelloWorld from '@/components/HelloWorld.vue'
 import common from '@/common'
+import router from '@/router'
+import { getBlockByNumber, getTransactionsCount } from '@/api/api'
+import '@/assets/css/layout.css'
+import '@/assets/css/public.css'
 
 export default {
   name: 'Home',
@@ -39,83 +92,456 @@ export default {
   data () {
     return {
       blocks: [],
-      maxBlocks: 0,
-      blockNumber: 0
+      maxBlocks: 7,
+      blockNumber: 0,
+      web3: common.web3,
+      totalStatisticsList: [
+        {
+          label: '当前块高',
+          route: 'block',
+          class: 'bg-8693f3 margin-right-15 margin-bottom-15',
+          value: 0
+        },
+        {
+          label: '交易总量',
+          route: 'transaction',
+          class: 'bg-bc8dee margin-left-15 margin-bottom-15',
+          value: 0
+        },
+        {
+          label: '正在处理的交易数',
+          route: '',
+          class: 'bg-ffa897 margin-top-15 margin-right-15',
+          value: 0
+        },
+        {
+          label: 'PBFT 当前视图',
+          route: '',
+          class: 'bg-89c3f8 margin-top-15  margin-left-15',
+          value: 0
+        }
+      ],
+      transactionsList: []
     }
   },
-  created () {
-    const web3 = common.web3
-    this.maxBlocks = 50
-    web3.eth.getBlockNumber()
-      .then((result) => {
-        // console.log(result)
-        this.blockNumber = result
-        if (this.maxBlocks > result) {
-          this.maxBlocks = result + 1
+  mounted: function () {
+    this.$nextTick(function () {
+      this.searchTbBlockInfo()
+      this.searchTbTransactionsInfo()
+    })
+  },
+  methods: {
+    timeTransport: function (block) {
+      const time = parseInt(block.timestamp, 10)
+      const timeA = new Date(time)
+      const format = function (time, format) {
+        const t = new Date(time)
+        var tf = function (i) {
+          return (i < 10 ? '0' : '') + i
         }
+        return format.replace(/yyyy|MM|dd|HH|mm|ss/g, function (a) {
+          switch (a) {
+            case 'yyyy':
+              return tf(t.getFullYear())
+            case 'MM':
+              return tf(t.getMonth() + 1)
+            case 'mm':
+              return tf(t.getMinutes())
+            case 'dd':
+              return tf(t.getDate())
+            case 'HH':
+              return tf(t.getHours())
+            case 'ss':
+              return tf(t.getSeconds())
+          }
+        })
+      }
+      block.timestamp = format(timeA, 'yyyy-MM-dd HH:ss')
+    },
+    searchBlocksInfo: function () {
+      const promiseArray = []
+      for (let i = 0; i < this.maxBlocks; i++) {
+        // promiseArray.push(this.web3.eth.getBlock('0x' + this.blockNumber - i, true))
+        promiseArray.push(getBlockByNumber((this.blockNumber - i).toString(16)))
+      }
+      Promise.all(promiseArray).then((res) => {
         for (let i = 0; i < this.maxBlocks; i++) {
-          // console.log(this.blockNumber)
-          web3.eth.getBlock(this.blockNumber - i)
-            .then((result) => {
-              console.log(result)
-              this.blocks.push(result)
-            })
+          this.blocks.push(res[i].data.result)
+          this.blocks[i].number = parseInt(this.blocks[i].number)
+          this.timeTransport(this.blocks[i])
+          this.transactionsList.push(res[i].data.result.transactions)
+          this.totalStatisticsList[1].value += res[i].data.result.transactions.length
         }
       })
+    },
+    searchTbBlockInfo: function () {
+      this.web3.eth.getBlockNumber()
+        .then((result) => {
+          console.log(result)
+          this.blockNumber = result
+          this.totalStatisticsList[0].value = result
+          if (this.maxBlocks > result) {
+            this.maxBlocks = result + 1
+          }
+          this.searchBlocksInfo()
+        })
+    },
+    searchTbTransactionsInfo: function () {
+      getTransactionsCount()
+        .then((res) => {
+          console.log(typeof (parseInt(res.data.result.count)))
+          this.totalStatisticsList[1].value = parseInt(res.data.result.count)
+        })
+    },
+    goPage: function (name, label, data) {
+      const path = {}
+      path.name = name || ''
+      path.query = {}
+      if (label) {
+        path.query[label] = data
+      }
+      router.push(path)
+    }
   }
 }
 </script>
 
 <style type="text/css">
-html {
-  font-family: sans-serif;
-  -ms-text-size-adjust: 100%;
-  -webkit-text-size-adjust: 100%;
+#building{
+  background:url("../assets/images/header-ng.png");
+  position:fixed;
+  background-size:100% 100%;}
+.home {
+  width: 100%;
+  background-color: #2a2c3b;
 }
 
-body {
-  margin: 10px;
-}
-table {
-  border-collapse: collapse;
-  border-spacing: 0;
+.home-head {
+  font-size: 0;
+  width: 100%;
 }
 
-td,th {
+.home-head-data {
+  display: inline-block;
+  width: calc(50% - 20px);
+  box-sizing: border-box;
+  padding: 30px;
+  background-color: #3b3e54;
+  vertical-align: middle;
+}
+
+.lg-width {
+  width: 47%;
+}
+.home-head-data ul {
+  list-style: none;
+  margin: 0;
   padding: 0;
 }
-
-.pure-table {
-  border-collapse: collapse;
-  border-spacing: 0;
-  empty-cells: show;
-  border: 1px solid #cbcbcb;
+.home-head-data ul li {
+  display: inline-block;
+  height: 110px;
+  padding: 25px 15px;
+  font-size: 14px;
+  cursor: pointer;
+  color: #fff;
+  box-sizing: border-box;
 }
 
-.pure-table caption {
-  color: #000;
-  font: italic 85%/1 arial,sans-serif;
-  padding: 1em 0;
+.home-head-chart {
+  width: calc(59% - 10px) !important;
+  height: 310px;
+  vertical-align: middle;
+}
+
+.home-head-chart .el-input__inner {
+  background-color: #3b3e54;
+  color: #fff;
+}
+
+.home-head-chart .el-range-input {
+  background-color: #3b3e54;
+  color: #fff;
+}
+.el-range-separator {
+  color: #fff !important;
+}
+
+.home-head-data-label {
+  color: white;
+}
+.home-head-data-content {
+  display: block;
+  color: white;
+  font-size: 38px;
+  text-align: right;
+}
+
+.home-center {
+  margin-top: 20px;
+}
+.home-center-table {
+  background-color: #3b3e54;
+}
+.home-center .el-table .table-style {
+  background-color: #3b3e54;
+  color: #fff;
   text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -o-text-overflow: ellipsis;
+  -webkit-text-overflow: ellipsis;
+  -moz-text-overflow: ellipsis;
+  white-space: nowrap;
+  border-color: #666;
 }
-
-.pure-table td,.pure-table th {
-  border-left: 1px solid #cbcbcb;
-  border-width: 0 0 0 1px;
-  font-size: inherit;
+.home-center .el-table .table-style:hover {
+  color: #333;
+}
+.el-table {
+  border-color: #666 !important;
+}
+.el-table__body-wrapper {
+  border-color: #666 !important;
+}
+.el-table table {
+  border-color: #666 !important;
+}
+.el-table tbody {
+  border-color: #666 !important;
+}
+.el-table tr {
+  border-color: #666 !important;
+}
+.el-table th {
+  border-color: #666 !important;
+}
+.el-table td {
+  border-color: #666 !important;
+}
+.el-table--border:after,
+.el-table--group:after,
+.el-table:before {
+  background-color: #666 !important;
+}
+.home-center .el-table .name-wrapper {
+  width: 100%;
+  height: 100%;
+  display: inline-block;
+  /*width: 450px;*/
+  overflow: hidden;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+.home-center .el-table .el-table__empty-block {
+  background-color: #3b3e54;
+}
+.home-foot {
+  margin-top: 20px;
+  font-size: 0;
+}
+.home-foot-box {
+  display: inline-block;
+  width: calc(50% - 10px);
+  padding-bottom: 20px;
+  background-color: #3b3e54;
+  font-size: 14px;
+  color: #fff;
+  vertical-align: top;
+  box-sizing: border-box;
+}
+.home-foot-box-nav {
+  width: 100%;
+  height: 50px;
+  line-height: 50px;
+  margin-left: 15px;
+  padding-right: 15px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+.home-foot-box-nav .left {
+  float: left;
+  width: 50%;
+}
+.home-foot-box-nav .left .line {
+  display: inline-block;
+  width: 3px;
+  height: 14px;
+  margin-right: 12px;
+  background-color: #2196f3;
+  vertical-align: middle;
+}
+.home-foot-box-nav .right {
+  float: right;
+  width: 50%;
+  text-align: right;
+  cursor: pointer;
+}
+.home-foot-box-content ul {
+  padding: 0;
   margin: 0;
-  overflow: visible;
-  padding: .5em 1em;
+  list-style: none;
+}
+.home-foot-box-content .item {
+  border-bottom: 1px solid #999;
+  overflow: hidden;
+  line-height: 28px;
+  padding: 12px 30px;
+}
+.home-foot-box-content .item .left {
+  float: left;
+}
+.home-foot-box-content .item .right {
+  float: right;
+  text-align: right;
+  overflow: hidden;
+}
+.home-foot-box-content .item .block-number {
+  display: inline-block;
+  width: 116px;
+  overflow: hidden;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  vertical-align: middle;
+}
+.home-foot-box-content .item .txn {
+  float: right;
+  width: 70px;
+  height: 28px;
+  line-height: 28px;
+  background-color: #2196f3;
+  color: #fff;
+  text-align: center;
+  cursor: pointer;
+}
+.home-foot-box-content .item .transaction {
+  width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  vertical-align: middle;
+}
+.home-foot-box-content .number {
+  display: inline-block;
+  width: 148px;
+  overflow: hidden;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  vertical-align: middle;
+}
+.home-foot-box-content .image {
+  vertical-align: middle;
 }
 
-.pure-table thead {
-  background-color: #e0e0e0;
-  color: #000;
-  text-align: left;
-  vertical-align: bottom;
+table {
+  border-color: #999 !important;
 }
-
-.pure-table td {
-  background-color: transparent;
+.node-false {
+  color: #f00 !important;
+}
+@media screen and (max-width: 1200px) {
+  .home-head-data {
+    display: inline-block;
+    width: calc(41% - 10px);
+    box-sizing: border-box;
+    padding: 20px 20px;
+    background-color: #3b3e54;
+    vertical-align: middle;
+  }
+  .home-head-data-content {
+    display: block;
+    color: white;
+    padding-top: 10px;
+    font-size: 28px;
+    text-align: right;
+  }
+  .home-head-chart {
+    width: calc(59% - 10px) !important;
+    height: 290px;
+    vertical-align: middle;
+  }
+  .home-foot-box-content .item {
+    border-bottom: 1px solid #999;
+    overflow: hidden;
+    line-height: 28px;
+    padding: 12px 20px;
+  }
+  .home-foot-box-content .item .transaction {
+    width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    vertical-align: middle;
+  }
+  .home-foot-box-content .number {
+    display: inline-block;
+    width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    vertical-align: middle;
+  }
+}
+@media screen and (max-width: 1000px) {
+  .home-head-data {
+    display: inline-block;
+    width: calc(41% - 10px);
+    box-sizing: border-box;
+    padding: 10px 10px;
+    background-color: #3b3e54;
+    vertical-align: middle;
+  }
+  .home-head-chart {
+    width: calc(59% - 10px) !important;
+    height: 270px;
+    vertical-align: middle;
+  }
+  .home-head-data-content {
+    display: block;
+    color: white;
+    padding-top: 10px;
+    font-size: 24px;
+    text-align: right;
+  }
+  .home-head-data ul li {
+    display: inline-block;
+    height: 110px;
+    padding: 25px 10px;
+    font-size: 14px;
+    cursor: pointer;
+    color: #fff;
+    box-sizing: border-box;
+  }
+  .home-foot-box-content .item {
+    border-bottom: 1px solid #999;
+    overflow: hidden;
+    line-height: 28px;
+    padding: 12px 20px;
+  }
+  .home-foot-box-content .item .transaction {
+    width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    vertical-align: middle;
+  }
+  .home-foot-box-content .number {
+    display: inline-block;
+    width: 85px;
+    overflow: hidden;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    vertical-align: middle;
+  }
+  .home-foot-box-content .item .txn {
+    float: right;
+    width: 70px;
+    height: 28px;
+    line-height: 28px;
+    background-color: #2196f3;
+    color: #fff;
+    text-align: center;
+    cursor: pointer;
+  }
 }
 </style>

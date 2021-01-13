@@ -11,12 +11,23 @@ const routes = [
     component: Home
   },
   {
-    path: '/about/:blocknum',
-    name: 'About',
+    path: '/block',
+    name: 'block',
+    meta: {
+      requireAuth: true //
+    },
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+    component: () => import(/* webpackChunkName: "about" */ '../views/Block.vue')
+  },
+  {
+    path: '/transaction/:transactionhash',
+    name: 'Transaction',
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () => import(/* webpackChunkName: "about" */ '../views/Transaction.vue')
   }
 ]
 
