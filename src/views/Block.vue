@@ -33,15 +33,6 @@
           <span>查询结果 : </span>
           <span>共计{{pagination.total}}条数据</span>
         </div>
-        <el-pagination style="display: inline-block"
-                       layout="sizes,prev, pager, next"
-                       :total="pagination.total"
-                       @size-change="handleSizeChange"
-                       @current-change="handleCurrentChange"
-                       :current-page.sync="pagination.currentPage"
-                       :page-sizes="[10, 20, 30, 50]"
-                       :page-size="pagination.pageSize">
-        </el-pagination>
       </div>
     </div>
   </div>
@@ -51,7 +42,7 @@
 import '@/assets/css/layout.css'
 import '@/assets/css/public.css'
 import common from '@/common'
-import { getBlockByNumber } from '@/api/api'
+import { getBlockByNumber, getBlockByHash } from '@/api/api'
 import router from '@/router'
 
 export default {
@@ -74,10 +65,11 @@ export default {
       submitDisabled: false
     }
   },
+  created: function () {
+    console.log('test')
+  },
   mounted: function () {
-    this.$nextTick(function () {
-      this.searchTbBlockInfo()
-    })
+    this.searchTbBlockInfo()
   },
   methods: {
     search: function () {
@@ -85,26 +77,39 @@ export default {
       if (this.input.length > 60) {
         this.hashData = this.input
         this.blockNumber = ''
+        this.searchBlock(this.hashData, 2)
       } else if (reg.test(this.input) && this.input.substring(0, 2) !== '0x') {
         this.hashData = ''
         this.blockNumber = this.input
-      } else if (this.input) {
+        this.searchBlock(this.blockNumber, 1)
+      } else if (this.input === '') {
         alert('请输入块高或完整的哈希')
+        this.$router.go(0)
       }
-      this.searchzrBlockInfo()
-      this.input = ''
-      router.push({
-        // name: "block",
-        query: {
-          pageSize: this.pagination.pageSize,
-          pageNumber: this.pagination.currentPage,
-          blockNumber: this.blockNumber,
-          blockHash: this.hashData
-        }
-      })
+      console.log(this.blockList)
     },
-    searchzrBlockInfo: function () {
-      this.submitDisabled = true
+    searchBlock: function (data, type) {
+      if (type === 2) {
+        getBlockByHash(this.input)
+          .then((res) => {
+            this.pagination.total = 1
+            console.log(res.data.result)
+            this.blockList = []
+            this.blockList.push(res.data.result)
+            this.blockList[0].number = parseInt(this.blockList[0].number)
+            this.timeTransport(this.blockList[0])
+          })
+      } else if (type === 1) {
+        getBlockByNumber(parseInt(this.input).toString(16))
+          .then((res) => {
+            this.pagination.total = 1
+            console.log(res.data.result)
+            this.blockList = []
+            this.blockList.push(res.data.result)
+            this.blockList[0].number = parseInt(this.blockList[0].number)
+            this.timeTransport(this.blockList[0])
+          })
+      }
     },
     timeTransport: function (block) {
       const time = parseInt(block.timestamp, 10)
@@ -151,6 +156,7 @@ export default {
       this.web3.eth.getBlockNumber()
         .then((result) => {
           // console.log(result)
+          this.pagination.total = result
           this.totalBlockNumber = result
           if (this.maxBlocks > result) {
             this.maxBlocks = result + 1

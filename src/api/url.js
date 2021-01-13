@@ -16,6 +16,9 @@ export function reviseParam (data = [], type) {
     case 1:
       baseJson.method = 'eth_getBlockByNumber'
       break
+    case 2:
+      baseJson.method = 'eth_getBlockByHash'
+      break
     default:
       return baseJson
   }

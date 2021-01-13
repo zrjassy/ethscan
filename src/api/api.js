@@ -20,3 +20,13 @@ export function getBlockByNumber (number, bean = true) {
     data: data2
   })
 }
+
+export function getBlockByHash (hashData, bean = true) {
+  // const d = ['0x0', true]
+  const data = [hashData, bean]
+  const data2 = reviseParam(data, 2)
+  return post({
+    method: 'post',
+    data: data2
+  })
+}
