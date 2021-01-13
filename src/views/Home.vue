@@ -170,7 +170,7 @@ export default {
           this.blocks[i].number = parseInt(this.blocks[i].number)
           this.timeTransport(this.blocks[i])
           this.transactionsList.push(res[i].data.result.transactions)
-          this.totalStatisticsList[1].value += res[i].data.result.transactions.length
+          // this.totalStatisticsList[1].value += res[i].data.result.transactions.length
         }
       })
     },
@@ -190,7 +190,7 @@ export default {
       getTransactionsCount()
         .then((res) => {
           console.log(typeof (parseInt(res.data.result.count)))
-          this.totalStatisticsList[1].value = parseInt(res.data.result.count)
+          this.totalStatisticsList[1].value = parseInt(res.data.result)
         })
     },
     goPage: function (name, label, data) {

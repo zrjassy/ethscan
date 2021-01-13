@@ -11,7 +11,7 @@ export function reviseParam (data = [], type) {
   baseJson.params = data
   switch (type) {
     case 0:
-      baseJson.method = 'eth_getTransactionsCount'
+      baseJson.method = 'eth_getTotalTransactionsCount'
       break
     case 1:
       baseJson.method = 'eth_getBlockByNumber'

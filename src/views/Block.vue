@@ -10,7 +10,7 @@
     </div>
     <div class="search-table">
       <el-table :data="blockList">
-        <el-table-column prop="number" label="块高" align="center" :class-name="'table-link'" :show-overflow-tooltip="true">
+        <el-table-column @click="goPage('block')" prop="number" label="块高" align="center" :class-name="'table-link'" :show-overflow-tooltip="true">
 <!--          <template slot-scope="scope">-->
 <!--            <span>{{scope.row.number}}</span>-->
 <!--          </template>-->
@@ -86,6 +86,7 @@ export default {
         alert('请输入块高或完整的哈希')
         this.$router.go(0)
       }
+      this.input = ''
       console.log(this.blockList)
     },
     searchBlock: function (data, type) {
