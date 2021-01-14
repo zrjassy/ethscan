@@ -20,15 +20,15 @@
         </el-table-column>
         <el-table-column prop="timestamp" label="生成时间" min-width="120px" align="center" :show-overflow-tooltip="true"></el-table-column>
         <el-table-column prop="transactions.length" label="交易数量" align="center" :class-name="'table-link'" :show-overflow-tooltip="true">
-<!--          <template slot-scope="scope">-->
-<!--            <span @click="linkPage('transaction','blockHeight',scope.row.number)">{{scope.row.txn}}</span>-->
-<!--          </template>-->
+          <template slot-scope="scope">
+            <span @click="goPage('transaction','blockHeight',scope.row.number)">{{scope.row.transactions.length}}</span>
+          </template>
         </el-table-column>
         <el-table-column prop="miner" label="出块者" min-width="100px" :show-overflow-tooltip="true" align="center"></el-table-column>
         <el-table-column prop="hash" label="哈希" min-width="350px" :show-overflow-tooltip="true" align="center" :class-name="'table-link'">
-<!--          <template slot-scope="scope">-->
-<!--            <span @click="linkPage('blockDetail','blockHash',scope.row.blockHash)">{{scope.row.blockHash}}</span>-->
-<!--          </template>-->
+          <template slot-scope="scope">
+            <span @click="goPage('blockDetail','hash',scope.row.hash)">{{scope.row.hash}}</span>
+          </template>
         </el-table-column>
       </el-table>
       <div class="search-pagation">

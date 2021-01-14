@@ -2,7 +2,7 @@
   <div>
     <div class="search-main padding-bottom-0">
       <div class="container padding-bottom-0">
-        <v-nav :page='page' :hrTitle="'交易'" :navContent="PkHash" :navSubtitle="'交易'" :hrcontent="'交易信息'" :route="'Home'"></v-nav>
+        <v-nav :page='page' :hrTitle="'交易'" :navContent="PkHash" :navSubtitle="'交易'" :hrcontent="'交易信息'" :route="'transaction'"></v-nav>
       </div>
     </div>
     <div class="hash-content-info-tran">

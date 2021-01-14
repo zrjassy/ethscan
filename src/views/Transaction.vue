@@ -20,10 +20,12 @@
           </el-table-column>
           <el-table-column prop="blockNumber" label="所属块" align="center" :show-overflow-tooltip="true" min-width="100px">
             <template slot-scope="scope">
-              <span @click="goPage('blockDetail','hash',scope.row.blockHash)" class="table-link" >{{scope.row.blockNumber}}</span>
+              <span @click="goPage('blockDetail','hash',scope.row.blockHash)" class="table-link" >{{parseInt(scope.row.blockNumber)}}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="nonce" label="交易块内ID" align="center" :show-overflow-tooltip="true"></el-table-column>
+          <el-table-column prop="nonce" label="交易块内ID" align="center" :show-overflow-tooltip="true">
+            <template slot-scope="scope">{{ parseInt(scope.row.nonce) }}</template>
+          </el-table-column>
           <el-table-column prop="from" label="发送者"  :show-overflow-tooltip="true" align="center"></el-table-column>
           <el-table-column   align="center" width="30px">
             <template>
@@ -70,15 +72,13 @@ export default {
       blockHeight: this.$route.query.blockHeight || '',
       // transactionTime: months,
       transactionList: [],
-      chainType: this.$route.query.chainType || '01',
       pagination: {
         currentPage: this.$route.query.pageNumber || 1,
         pageSize: this.$route.query.pageSize || 10,
         total: 0
       },
       submitDisabled: false,
-      loading: false,
-      setIntervalTime: null
+      loading: false
     }
   },
   mounted: function () {
@@ -101,6 +101,7 @@ export default {
       getTbTransactionInfo(this.blockHeight, this.transactionData)
         .then((res) => {
           this.submitDisabled = false
+          this.loading = false
           if (this.blockHeight) {
             this.transactionList = res.data.result.transactions
             this.pagination.total = this.transactionList.length
@@ -145,11 +146,15 @@ export default {
     },
     searchTbTransactionInfo: function () {
       this.loading = true
-      this.web3.eth.getBlockNumber()
-        .then((result) => {
-          this.blockNum = result
-          this.searchTransactionsInfo()
-        })
+      if (this.blockHeight) {
+        this.search_trasaction()
+      } else {
+        this.web3.eth.getBlockNumber()
+          .then((result) => {
+            this.blockNum = result
+            this.searchTransactionsInfo()
+          })
+      }
     }
   }
 }

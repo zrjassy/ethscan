@@ -55,7 +55,8 @@
             <ul>
               <li class="item" v-for="item in transactionsList" :key='item.timestamp'>
                 <div class="left">
-                  <div class="transaction" @click="goPage( 'transactionDetail','pkHash',item.hash)">交易
+                  <div>交易</div>
+                  <div class="transaction" @click="goPage( 'transactionDetail','pkHash',item.hash)">
                     <span class="table-link" :title="item.hash">{{item.hash }}</span>
                   </div>
                 </div>
