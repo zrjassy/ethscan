@@ -1,24 +1,35 @@
 # ethscan
 
-## Project setup
-```
+安装依赖：
+
+```node
 npm install
 ```
 
-### Compiles and hot-reloads for development
+运行：
+
 ```
 npm run serve
 ```
 
-### Compiles and minifies for production
+![](./img/run_serve.png)
+
+或者通过 `npm run build`编译生成静态资源dist（已同步推送到github中）
+
 ```
 npm run build
 ```
 
-### Lints and fixes files
+先安装静态部署工具serve
+
 ```
-npm run lint
+npm install -g serve
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+然后通过serve指定一个端口部署
+
+```
+serve -s dist --listen 8080
+```
+
+![](./images/serve_dist.png)
