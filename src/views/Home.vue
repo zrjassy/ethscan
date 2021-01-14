@@ -47,15 +47,15 @@
               <span class="line"></span>
               <span class="text">交易</span>
             </div>
-<!--            <div class="right">-->
-<!--              <span @click="linkPage('transaction')" class="table-link" style="padding-right: 30px"> 更多 ></span>-->
-<!--            </div>-->
+            <div class="right">
+              <span @click="goPage('transaction')" class="table-link" style="padding-right: 30px">更多 ></span>
+            </div>
           </div>
           <div class="home-foot-box-content" >
             <ul>
               <li class="item" v-for="item in transactionsList" :key='item.timestamp'>
                 <div class="left">
-                  <div class="transaction" >交易
+                  <div class="transaction" @click="goPage( 'transactionDetail','pkHash',item.hash)">交易
                     <span class="table-link" :title="item.hash">{{item.hash }}</span>
                   </div>
                 </div>
@@ -92,7 +92,7 @@ export default {
   data () {
     return {
       blocks: [],
-      maxBlocks: 7,
+      maxBlocks: 20,
       blockNumber: 0,
       web3: common.web3,
       totalStatisticsList: [

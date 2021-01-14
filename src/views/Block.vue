@@ -9,7 +9,10 @@
       </div>
     </div>
     <div class="search-table">
-      <el-table :data="blockList">
+      <el-table :data="blockList"
+                v-loading="loading"
+                element-loading-text="数据加载中..."
+                element-loading-background="rgba(0, 0, 0, 0.8)">
         <el-table-column  prop="number" label="块高" align="center" :class-name="'table-link'" :show-overflow-tooltip="true">
           <template slot-scope="scope">
             <span @click="goPage('blockDetail','hash',scope.row.hash)">{{scope.row.number}}</span>
@@ -62,11 +65,9 @@ export default {
       totalBlockNumber: 0,
       blockList: [],
       transactions: [],
-      submitDisabled: false
+      submitDisabled: false,
+      loading: false
     }
-  },
-  created: function () {
-    console.log('test')
   },
   mounted: function () {
     this.searchTbBlockInfo()
@@ -150,10 +151,12 @@ export default {
           this.blockList.push(res[i].data.result)
           this.blockList[i].number = parseInt(this.blockList[i].number)
           this.timeTransport(this.blockList[i])
+          this.loading = false
         }
       })
     },
     searchTbBlockInfo: function () {
+      this.loading = true
       this.web3.eth.getBlockNumber()
         .then((result) => {
           // console.log(result)

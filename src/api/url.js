@@ -19,6 +19,12 @@ export function reviseParam (data = [], type) {
     case 2:
       baseJson.method = 'eth_getBlockByHash'
       break
+    case 3:
+      baseJson.method = 'eth_getTransactionByHash'
+      break
+    case 4:
+      baseJson.method = 'eth_getTransactionReceipt'
+      break
     default:
       return baseJson
   }
