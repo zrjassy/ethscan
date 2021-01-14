@@ -28,7 +28,7 @@
             <ul>
               <li class="item" v-for="item in blocks" :key='item.number'>
                 <div class="left">
-                  <div  @click="goPage('block','blocknum',item.number)" class="table-link">区块 {{item.number}}</div>
+                  <div  @click="goPage('blockDetail','hash',item.hash)" class="table-link">区块 {{item.number}}</div>
                   <div>{{item.timestamp}}</div>
                 </div>
                 <div class="right">
@@ -53,7 +53,7 @@
           </div>
           <div class="home-foot-box-content" >
             <ul>
-              <li class="item" v-for="item in transactionsList[0]" :key='item.timestamp'>
+              <li class="item" v-for="item in transactionsList" :key='item.timestamp'>
                 <div class="left">
                   <div class="transaction" >交易
                     <span class="table-link" :title="item.hash">{{item.hash }}</span>
@@ -169,7 +169,8 @@ export default {
           this.blocks.push(res[i].data.result)
           this.blocks[i].number = parseInt(this.blocks[i].number)
           this.timeTransport(this.blocks[i])
-          this.transactionsList.push(res[i].data.result.transactions)
+          Array.prototype.push.apply(this.transactionsList, res[i].data.result.transactions)
+          console.log(this.transactionsList, i)
           // this.totalStatisticsList[1].value += res[i].data.result.transactions.length
         }
       })
