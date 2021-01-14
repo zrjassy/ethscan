@@ -81,47 +81,20 @@
 // import HelloWorld from '@/components/HelloWorld.vue'
 import common from '@/common'
 import router from '@/router'
+import constant from '@/util/constant'
 import { getBlockByNumber, getTransactionsCount } from '@/api/api'
 import '@/assets/css/layout.css'
 import '@/assets/css/public.css'
 
 export default {
   name: 'Home',
-  // components: {
-  //   HelloWorld
-  // },
   data () {
     return {
       blocks: [],
       maxBlocks: 20,
       blockNumber: 0,
       web3: common.web3,
-      totalStatisticsList: [
-        {
-          label: '当前块高',
-          route: 'block',
-          class: 'bg-8693f3 margin-right-15 margin-bottom-15',
-          value: 0
-        },
-        {
-          label: '交易总量',
-          route: 'transaction',
-          class: 'bg-bc8dee margin-left-15 margin-bottom-15',
-          value: 0
-        },
-        {
-          label: '正在处理的交易数',
-          route: '',
-          class: 'bg-ffa897 margin-top-15 margin-right-15',
-          value: 0
-        },
-        {
-          label: 'PBFT 当前视图',
-          route: '',
-          class: 'bg-89c3f8 margin-top-15  margin-left-15',
-          value: 0
-        }
-      ],
+      totalStatisticsList: constant.TOTAL_STATISTICS_LIST,
       transactionsList: []
     }
   },
@@ -137,7 +110,7 @@ export default {
       const timeA = new Date(time)
       const format = function (time, format) {
         const t = new Date(time)
-        var tf = function (i) {
+        const tf = function (i) {
           return (i < 10 ? '0' : '') + i
         }
         return format.replace(/yyyy|MM|dd|HH|mm|ss/g, function (a) {
@@ -162,7 +135,6 @@ export default {
     searchBlocksInfo: function () {
       const promiseArray = []
       for (let i = 0; i < this.maxBlocks; i++) {
-        // promiseArray.push(this.web3.eth.getBlock('0x' + this.blockNumber - i, true))
         promiseArray.push(getBlockByNumber((this.blockNumber - i).toString(16)))
       }
       Promise.all(promiseArray).then((res) => {
@@ -171,8 +143,6 @@ export default {
           this.blocks[i].number = parseInt(this.blocks[i].number)
           this.timeTransport(this.blocks[i])
           Array.prototype.push.apply(this.transactionsList, res[i].data.result.transactions)
-          console.log(this.transactionsList, i)
-          // this.totalStatisticsList[1].value += res[i].data.result.transactions.length
         }
       })
     },
