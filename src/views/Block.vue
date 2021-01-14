@@ -10,10 +10,10 @@
     </div>
     <div class="search-table">
       <el-table :data="blockList">
-        <el-table-column @click="goPage('block')" prop="number" label="块高" align="center" :class-name="'table-link'" :show-overflow-tooltip="true">
-<!--          <template slot-scope="scope">-->
-<!--            <span>{{scope.row.number}}</span>-->
-<!--          </template>-->
+        <el-table-column  prop="number" label="块高" align="center" :class-name="'table-link'" :show-overflow-tooltip="true">
+          <template slot-scope="scope">
+            <span @click="goPage('blockDetail','hash',scope.row.hash)">{{scope.row.number}}</span>
+          </template>
         </el-table-column>
         <el-table-column prop="timestamp" label="生成时间" min-width="120px" align="center" :show-overflow-tooltip="true"></el-table-column>
         <el-table-column prop="transactions.length" label="交易数量" align="center" :class-name="'table-link'" :show-overflow-tooltip="true">
