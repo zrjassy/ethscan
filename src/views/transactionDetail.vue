@@ -8,7 +8,7 @@
     <div class="hash-content-info-tran">
       <div class="container">
         <div class="content">
-          <el-tabs v-model="activeName" @tab-click="handleClick">
+          <el-tabs v-model="activeName" >
             <el-tab-pane label="交易信息" name="first">
               <div class="tranbox">
                 <div v-for="item in transactionData" class="hash-content-label" :key='item.label'>
@@ -65,35 +65,35 @@
                         <span class="label">Address :</span>
                         <span>{{item.address}}</span>
                       </div>
-                      <div class="item">
-                        <span class="label">Name :</span>
-                        <span>{{item.eventName}}</span>
-                      </div>
+<!--                      <div class="item">-->
+<!--                        <span class="label">Name :</span>-->
+<!--                        <span>{{item.eventName}}</span>-->
+<!--                      </div>-->
                       <div class="item">
                         <span class="label">Topics :</span>
                         <div style="display: inline-block;width:800px;">
                           <div v-for="(val,index) in item.topics " :key='val'>[{{index}}] {{val}}</div>
                         </div>
                       </div>
-                      <div class="item">
-                        <span class="label">Data :</span>
-                        <div class="detail-input-content " v-if='eventContent'>
-                          <span  v-if="!item.eventDataShow"  class="input-data" style="width:600px;">{{item.data}}</span>
-                          <el-table class="input-data " border :data="item.eventLgData" v-if="item.eventDataShow" style="display:inline-block;width:400px">
-                            <el-table-column prop="name" width="150" label="name" align="left"></el-table-column>
-                            <el-table-column prop="data" label="data" align="left" :show-overflow-tooltip="true">
-                              <template slot-scope="scope">
-                                <i class="wbs-icon-baocun font-12 copy-public-key" @click="copyPubilcKey(scope.row.data)" title="复制"></i>
-                                <span>{{scope.row.data}}</span>
-                              </template>
-                            </el-table-column>
-                          </el-table>
-                        </div>
-                      </div>
-                      <div class="item" v-show='item.eventButtonShow'>
-                        <span class="label"></span>
-                        <el-button @click="decode(item)" type="primary">{{item.eventTitle}}</el-button>
-                      </div>
+<!--                      <div class="item">-->
+<!--                        <span class="label">Data :</span>-->
+<!--                        <div class="detail-input-content " v-if='eventContent'>-->
+<!--                          <span  v-if="!item.eventDataShow"  class="input-data" style="width:600px;">{{item.data}}</span>-->
+<!--                          <el-table class="input-data " border :data="item.eventLgData" v-if="item.eventDataShow" style="display:inline-block;width:400px">-->
+<!--                            <el-table-column prop="name" width="150" label="name" align="left"></el-table-column>-->
+<!--                            <el-table-column prop="data" label="data" align="left" :show-overflow-tooltip="true">-->
+<!--                              <template slot-scope="scope">-->
+<!--                                <i class="wbs-icon-baocun font-12 copy-public-key" @click="copyPubilcKey(scope.row.data)" title="复制"></i>-->
+<!--                                <span>{{scope.row.data}}</span>-->
+<!--                              </template>-->
+<!--                            </el-table-column>-->
+<!--                          </el-table>-->
+<!--                        </div>-->
+<!--                      </div>-->
+<!--                      <div class="item" v-show='item.eventButtonShow'>-->
+<!--                        <span class="label"></span>-->
+<!--                        <el-button @click="decode(item)" type="primary">{{item.eventTitle}}</el-button>-->
+<!--                      </div>-->
                     </div>
                   </div>
                 </div>
