@@ -1,6 +1,6 @@
 <template>
   <div class="block">
-<!--    <p>{{ block }}</p>-->
+    <!--搜索框-->
     <div class="search-nav">
       <div class="hashInput">
         <el-input placeholder="请输入区块哈希或块高" v-model="input" class="input-with-select">
@@ -8,6 +8,7 @@
         </el-input>
       </div>
     </div>
+    <!--搜索结果，默认显示全部区块，按高度从高到到低排序-->
     <div class="search-table">
       <el-table :data="blockList"
                 v-loading="loading"
@@ -15,11 +16,11 @@
                 element-loading-background="rgba(0, 0, 0, 0.8)">
         <el-table-column  prop="number" label="块高" align="center" :class-name="'table-link'" :show-overflow-tooltip="true">
           <template slot-scope="scope">
-            <span @click="goPage('blockDetail','hash',scope.row.hash)">{{scope.row.number}}</span>
+            <span @click="goPage('blockDetail','hash',scope.row.hash)">{{parseInt(scope.row.number)}}</span>
           </template>
         </el-table-column>
         <el-table-column prop="timestamp" label="生成时间" min-width="120px" align="center" :show-overflow-tooltip="true"></el-table-column>
-        <el-table-column prop="transactions.length" label="交易数量" align="center" :class-name="'table-link'" :show-overflow-tooltip="true">
+        <el-table-column prop="transactions" label="交易数量" align="center" :class-name="'table-link'" :show-overflow-tooltip="true">
           <template slot-scope="scope">
             <span @click="goPage('transaction','blockHeight',scope.row.number)">{{scope.row.transactions.length}}</span>
           </template>
@@ -31,6 +32,7 @@
           </template>
         </el-table-column>
       </el-table>
+      <!--查询结果总结，后续添加换页功能-->
       <div class="search-pagation">
         <div style="line-height: 40px;">
           <span>查询结果 : </span>
@@ -64,7 +66,6 @@ export default {
       maxBlocks: 50,
       totalBlockNumber: 0,
       blockList: [],
-      transactions: [],
       submitDisabled: false,
       loading: false
     }
@@ -73,46 +74,6 @@ export default {
     this.searchTbBlockInfo()
   },
   methods: {
-    search: function () {
-      const reg = /^[0-9]+.?[0-9]*$/
-      if (this.input.length > 60) {
-        this.hashData = this.input
-        this.blockNumber = ''
-        this.searchBlock(this.hashData, 2)
-      } else if (reg.test(this.input) && this.input.substring(0, 2) !== '0x') {
-        this.hashData = ''
-        this.blockNumber = this.input
-        this.searchBlock(this.blockNumber, 1)
-      } else if (this.input === '') {
-        alert('请输入块高或完整的哈希')
-        this.$router.go(0)
-      }
-      this.input = ''
-      console.log(this.blockList)
-    },
-    searchBlock: function (data, type) {
-      if (type === 2) {
-        getBlockByHash(this.input)
-          .then((res) => {
-            this.pagination.total = 1
-            console.log(res.data.result)
-            this.blockList = []
-            this.blockList.push(res.data.result)
-            this.blockList[0].number = parseInt(this.blockList[0].number)
-            this.timeTransport(this.blockList[0])
-          })
-      } else if (type === 1) {
-        getBlockByNumber(parseInt(this.input).toString(16))
-          .then((res) => {
-            this.pagination.total = 1
-            console.log(res.data.result)
-            this.blockList = []
-            this.blockList.push(res.data.result)
-            this.blockList[0].number = parseInt(this.blockList[0].number)
-            this.timeTransport(this.blockList[0])
-          })
-      }
-    },
     timeTransport: function (block) {
       const time = parseInt(block.timestamp, 10)
       const timeA = new Date(time)
@@ -140,26 +101,50 @@ export default {
       }
       block.timestamp = format(timeA, 'yyyy-MM-dd HH:ss')
     },
-    searchBlocksInfo: function () {
-      const promiseArray = []
-      for (let i = 0; i < this.maxBlocks; i++) {
-        // promiseArray.push(this.web3.eth.getBlock('0x' + this.blockNumber - i, true))
-        promiseArray.push(getBlockByNumber((this.totalBlockNumber - i).toString(16)))
+    search: function () {
+      const reg = /^[0-9]+.?[0-9]*$/
+      if (this.input.length > 60) {
+        this.hashData = this.input
+        this.blockNumber = ''
+        this.searchBlock(this.hashData, 2)
+      } else if (reg.test(this.input) && this.input.substring(0, 2) !== '0x') {
+        this.hashData = ''
+        this.blockNumber = this.input
+        this.searchBlock(this.blockNumber, 1)
+      } else if (this.input === '') {
+        alert('请输入块高或完整的哈希')
+        this.$router.go(0)
       }
-      Promise.all(promiseArray).then((res) => {
-        for (let i = 0; i < this.maxBlocks; i++) {
-          this.blockList.push(res[i].data.result)
-          this.blockList[i].number = parseInt(this.blockList[i].number)
-          this.timeTransport(this.blockList[i])
-          this.loading = false
-        }
-      })
+      this.input = ''
+    },
+    searchBlock: function (data, type) {
+      if (type === 2) {
+        getBlockByHash(this.input)
+          .then((res) => {
+            this.pagination.total = 1
+            console.log(res.data.result)
+            this.blockList = []
+            this.blockList.push(res.data.result)
+            // 根据hash查找区块默认只能找到一个区块
+            this.timeTransport(this.blockList[0])
+          })
+      } else if (type === 1) {
+        getBlockByNumber(parseInt(this.input).toString(16))
+          .then((res) => {
+            this.pagination.total = 1
+            console.log(res.data.result)
+            this.blockList = []
+            this.blockList.push(res.data.result)
+            for (let i = 0; i < this.blockList.length; i++) {
+              this.timeTransport(this.blockList[i])
+            }
+          })
+      }
     },
     searchTbBlockInfo: function () {
       this.loading = true
       this.web3.eth.getBlockNumber()
         .then((result) => {
-          // console.log(result)
           this.pagination.total = result
           this.totalBlockNumber = result
           if (this.maxBlocks > result) {
@@ -167,6 +152,19 @@ export default {
           }
           this.searchBlocksInfo()
         })
+    },
+    searchBlocksInfo: function () {
+      const promiseArray = []
+      for (let i = 0; i < this.maxBlocks; i++) {
+        promiseArray.push(getBlockByNumber((this.totalBlockNumber - i).toString(16)))
+      }
+      Promise.all(promiseArray).then((res) => {
+        for (let i = 0; i < this.maxBlocks; i++) {
+          this.blockList.push(res[i].data.result)
+          this.timeTransport(this.blockList[i])
+        }
+        this.loading = false
+      })
     },
     goPage: function (name, label, data) {
       const path = {}
@@ -178,6 +176,5 @@ export default {
       router.push(path)
     }
   }
-
 }
 </script>

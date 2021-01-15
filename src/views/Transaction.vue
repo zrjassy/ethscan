@@ -96,39 +96,34 @@ export default {
       }
       router.push(path)
     },
-    search_trasaction: function () {
-      this.transactionList = []
-      getTbTransactionInfo(this.blockHeight, this.transactionData)
-        .then((res) => {
-          this.submitDisabled = false
-          this.loading = false
-          if (this.blockHeight) {
-            this.transactionList = res.data.result.transactions
-            this.pagination.total = this.transactionList.length
-          } else if (this.transactionData) {
-            this.transactionList.push(res.data.result)
-            this.pagination.total = 1
-          }
-          this.blockHeight = ''
-          this.transactionData = ''
-        })
-    },
     search: function () {
       this.submitDisabled = true
       const reg = /^[0-9]+.?[0-9]*$/
       if (this.searchKeyValue.length > 60) {
         this.blockHeight = ''
         this.transactionData = this.searchKeyValue
-        this.search_trasaction()
+        this.searchTransaction()
       } else if (reg.test(this.searchKeyValue) && this.searchKeyValue.substring(0, 2) !== '0x') {
         this.blockHeight = this.searchKeyValue
         this.transactionData = ''
-        this.search_trasaction()
+        this.searchTransaction()
       } else if (this.searchKeyValue === '') {
         alert('请输入块高或完整的哈希')
         this.$router.go(0)
       }
       this.searchKeyValue = ''
+    },
+    searchTbTransactionInfo: function () {
+      this.loading = true
+      if (this.blockHeight) {
+        this.searchTransaction()
+      } else {
+        this.web3.eth.getBlockNumber()
+          .then((result) => {
+            this.blockNum = result
+            this.searchTransactionsInfo()
+          })
+      }
     },
     searchTransactionsInfo: function () {
       const num = parseInt(this.blockNum)
@@ -144,17 +139,22 @@ export default {
         this.pagination.total = this.transactionList.length
       })
     },
-    searchTbTransactionInfo: function () {
-      this.loading = true
-      if (this.blockHeight) {
-        this.search_trasaction()
-      } else {
-        this.web3.eth.getBlockNumber()
-          .then((result) => {
-            this.blockNum = result
-            this.searchTransactionsInfo()
-          })
-      }
+    searchTransaction: function () {
+      this.transactionList = []
+      getTbTransactionInfo(this.blockHeight, this.transactionData)
+        .then((res) => {
+          this.submitDisabled = false
+          this.loading = false
+          if (this.blockHeight) {
+            this.transactionList = res.data.result.transactions
+            this.pagination.total = this.transactionList.length
+          } else if (this.transactionData) {
+            this.transactionList.push(res.data.result)
+            this.pagination.total = 1
+          }
+          this.blockHeight = ''
+          this.transactionData = ''
+        })
     }
   }
 }

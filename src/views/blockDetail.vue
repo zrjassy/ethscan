@@ -7,8 +7,8 @@
           <div class="c-title">
           <div>区块信息</div>
           </div>
+        </div>
       </div>
-    </div>
     </div>
     <div class="hash-content-info">
       <div class="container">
@@ -44,8 +44,8 @@ export default {
       blockContent: '',
       noData: false,
       page: {
-        pageSize: this.$route.pageSize || 10,
-        pageNumber: this.$route.pageNumber || 1
+        pageSize: this.$route.query.pageSize || 10,
+        pageNumber: this.$route.query.pageNumber || 1
       }
     }
   },

@@ -15,39 +15,6 @@
                   <span class="label-title">{{item.label}}:</span>
                   <span>{{item.value}}</span>
                 </div>
-<!--                <div class="hash-content-label">-->
-<!--                  <span class="label-title">input:</span>-->
-<!--                  <div class="label-content">-->
-<!--                    <span v-if="!showDecode" class="input-data">{{transactionByPkHash.input}}</span>-->
-<!--                    <div v-if="showDecode" class="input-data">-->
-<!--                      <div class="input-label">-->
-<!--                        <span class="label">function</span>-->
-<!--                        <span>{{funcData + "(" + abiType + ")"}}</span>-->
-<!--                      </div>-->
-<!--                      <div class="input-label">-->
-<!--                        <span class="label">methodId</span>-->
-<!--                        <span>{{methodId}}</span>-->
-<!--                      </div>-->
-<!--                      <div class="input-label ">-->
-<!--                        <span class="label">data</span>-->
-<!--                        <el-table :data="inputData" v-if="inputData.length" border style="display:inline-block;width:400px">-->
-<!--                          <el-table-column prop="name" label="name" align="center" v-if="inputData[0].name"></el-table-column>-->
-<!--                          <el-table-column prop="type" label="type" align="center"></el-table-column>-->
-<!--                          <el-table-column prop="data" label="data" align="center" :show-overflow-tooltip="true">-->
-<!--                            <template slot-scope="scope">-->
-<!--                              <i class="wbs-icon-baocun font-12 copy-public-key" @click="copyPubilcKey(scope.row.data)" title="复制"></i>-->
-<!--                              <span>{{scope.row.data}}</span>-->
-<!--                            </template>-->
-<!--                          </el-table-column>-->
-<!--                        </el-table>-->
-<!--                      </div>-->
-<!--                    </div>-->
-<!--                  </div>-->
-<!--                </div>-->
-<!--                <div class="hash-content-label">-->
-<!--                  <span class="label-title"></span>-->
-<!--                  <el-button @click="decodeChange" type="primary">{{buttonTitle}}</el-button>-->
-<!--                </div>-->
               </div>
             </el-tab-pane>
             <el-tab-pane label="交易回执信息" name="second">
@@ -65,35 +32,12 @@
                         <span class="label">Address :</span>
                         <span>{{item.address}}</span>
                       </div>
-<!--                      <div class="item">-->
-<!--                        <span class="label">Name :</span>-->
-<!--                        <span>{{item.eventName}}</span>-->
-<!--                      </div>-->
                       <div class="item">
                         <span class="label">Topics :</span>
                         <div style="display: inline-block;width:800px;">
                           <div v-for="(val,index) in item.topics " :key='val'>[{{index}}] {{val}}</div>
                         </div>
                       </div>
-<!--                      <div class="item">-->
-<!--                        <span class="label">Data :</span>-->
-<!--                        <div class="detail-input-content " v-if='eventContent'>-->
-<!--                          <span  v-if="!item.eventDataShow"  class="input-data" style="width:600px;">{{item.data}}</span>-->
-<!--                          <el-table class="input-data " border :data="item.eventLgData" v-if="item.eventDataShow" style="display:inline-block;width:400px">-->
-<!--                            <el-table-column prop="name" width="150" label="name" align="left"></el-table-column>-->
-<!--                            <el-table-column prop="data" label="data" align="left" :show-overflow-tooltip="true">-->
-<!--                              <template slot-scope="scope">-->
-<!--                                <i class="wbs-icon-baocun font-12 copy-public-key" @click="copyPubilcKey(scope.row.data)" title="复制"></i>-->
-<!--                                <span>{{scope.row.data}}</span>-->
-<!--                              </template>-->
-<!--                            </el-table-column>-->
-<!--                          </el-table>-->
-<!--                        </div>-->
-<!--                      </div>-->
-<!--                      <div class="item" v-show='item.eventButtonShow'>-->
-<!--                        <span class="label"></span>-->
-<!--                        <el-button @click="decode(item)" type="primary">{{item.eventTitle}}</el-button>-->
-<!--                      </div>-->
                     </div>
                   </div>
                 </div>
@@ -265,8 +209,8 @@ export default {
       eventContent: true,
       eventSHow: false,
       page: {
-        pageSize: this.$route.pageSize || 10,
-        pageNumber: this.$route.pageNumber || 1
+        pageSize: this.$route.query.pageSize || 10,
+        pageNumber: this.$route.query.pageNumber || 1
       }
     }
   },

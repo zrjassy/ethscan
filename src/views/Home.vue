@@ -53,14 +53,14 @@
           </div>
           <div class="home-foot-box-content" >
             <ul>
-              <li class="item" v-for="item in transactionsList" :key='item.timestamp'>
+              <li class="item" v-for="item in transactionsList" :key='item.hash'>
                 <div class="left">
                   <div>交易</div>
                   <div class="transaction" @click="goPage( 'transactionDetail','pkHash',item.hash)">
                     <span class="table-link" :title="item.hash">{{item.hash }}</span>
                   </div>
                 </div>
-
+                <!--后续添加交易时间戳，暂时无显示-->
                 <div class="right">
                   <div>{{item.timestamp}}</div>
                 </div>
@@ -91,23 +91,22 @@ export default {
   data () {
     return {
       blocks: [],
-      maxBlocks: 20,
-      blockNumber: 0,
+      transactionsList: [],
+      maxBlocks: 20, // 该页面最大显示区块数
+      blockNumber: 0, // 最新区块区块高度
       web3: common.web3,
-      totalStatisticsList: constant.TOTAL_STATISTICS_LIST,
-      transactionsList: []
+      totalStatisticsList: constant.TOTAL_STATISTICS_LIST
     }
   },
   mounted: function () {
     this.$nextTick(function () {
       this.searchTbBlockInfo()
-      this.searchTbTransactionsInfo()
+      this.searchTbTransactionsCountInfo()
     })
   },
   methods: {
     timeTransport: function (block) {
-      const time = parseInt(block.timestamp, 10)
-      const timeA = new Date(time)
+      const timeA = new Date(parseInt(block.timestamp, 10))
       const format = function (time, format) {
         const t = new Date(time)
         const tf = function (i) {
@@ -140,8 +139,8 @@ export default {
       Promise.all(promiseArray).then((res) => {
         for (let i = 0; i < this.maxBlocks; i++) {
           this.blocks.push(res[i].data.result)
-          this.blocks[i].number = parseInt(this.blocks[i].number)
           this.timeTransport(this.blocks[i])
+          // TODO:后续添加对transactionList中的交易进行排序，按照时间顺序
           Array.prototype.push.apply(this.transactionsList, res[i].data.result.transactions)
         }
       })
@@ -158,10 +157,9 @@ export default {
           this.searchBlocksInfo()
         })
     },
-    searchTbTransactionsInfo: function () {
+    searchTbTransactionsCountInfo: function () {
       getTransactionsCount()
         .then((res) => {
-          console.log(typeof (parseInt(res.data.result.count)))
           this.totalStatisticsList[1].value = parseInt(res.data.result)
         })
     },
