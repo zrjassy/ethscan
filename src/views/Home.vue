@@ -28,7 +28,7 @@
             <ul>
               <li class="item" v-for="item in blocks" :key='item.number'>
                 <div class="left">
-                  <div  @click="goPage('blockDetail','hash',item.hash)" class="table-link">区块 {{item.number}}</div>
+                  <div  @click="goPage('blockDetail','hash',item.hash)" class="table-link">区块 {{parseInt(item.number)}}</div>
                   <div>{{item.timestamp}}</div>
                 </div>
                 <div class="right">
@@ -92,7 +92,7 @@ export default {
     return {
       blocks: [],
       transactionsList: [],
-      maxBlocks: 20, // 该页面最大显示区块数
+      maxBlocks: 100, // 该页面最大显示区块数
       blockNumber: 0, // 最新区块区块高度
       web3: common.web3,
       totalStatisticsList: constant.TOTAL_STATISTICS_LIST
@@ -141,7 +141,8 @@ export default {
           this.blocks.push(res[i].data.result)
           this.timeTransport(this.blocks[i])
           // TODO:后续添加对transactionList中的交易进行排序，按照时间顺序
-          Array.prototype.push.apply(this.transactionsList, res[i].data.result.transactions)
+          this.transactionsList = this.transactionsList.concat(res[i].data.result.transactions)
+          // Array.prototype.push.apply(this.transactionsList, res[i].data.result.transactions)
         }
       })
     },
