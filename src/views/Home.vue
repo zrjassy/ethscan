@@ -105,31 +105,31 @@ export default {
     })
   },
   methods: {
-    timeTransport: function (block) {
-      const timeA = new Date(parseInt(block.timestamp, 10))
-      const format = function (time, format) {
-        const t = new Date(time)
-        const tf = function (i) {
-          return (i < 10 ? '0' : '') + i
-        }
-        return format.replace(/yyyy|MM|dd|HH|mm|ss/g, function (a) {
-          switch (a) {
-            case 'yyyy':
-              return tf(t.getFullYear())
-            case 'MM':
-              return tf(t.getMonth() + 1)
-            case 'mm':
-              return tf(t.getMinutes())
-            case 'dd':
-              return tf(t.getDate())
-            case 'HH':
-              return tf(t.getHours())
-            case 'ss':
-              return tf(t.getSeconds())
-          }
-        })
+    format: function (time, format) {
+      const t = new Date(time)
+      const tf = function (i) {
+        return (i < 10 ? '0' : '') + i
       }
-      block.timestamp = format(timeA, 'yyyy-MM-dd HH:ss')
+      return format.replace(/yyyy|MM|dd|HH|mm|ss/g, function (a) {
+        switch (a) {
+          case 'yyyy':
+            return tf(t.getFullYear())
+          case 'MM':
+            return tf(t.getMonth() + 1)
+          case 'mm':
+            return tf(t.getMinutes())
+          case 'dd':
+            return tf(t.getDate())
+          case 'HH':
+            return tf(t.getHours())
+          case 'ss':
+            return tf(t.getSeconds())
+        }
+      })
+    },
+    timeTransport: function (block) {
+      const time = parseInt(block.timestamp, 16) * 1000
+      block.timestamp = this.format(time, 'yyyy-MM-dd HH:mm:ss')
     },
     searchBlocksInfo: function () {
       const promiseArray = []
